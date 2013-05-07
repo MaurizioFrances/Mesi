@@ -1,0 +1,88 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@font-face {
+	src:url("src/assets/GeosansLight.ttf");
+	fontFamily: myFont;
+	embedAsCFF: true;
+}
+
+
+global
+{
+	content-background-color: #EAE7DB;
+}
+s|Label
+{
+	color: #FFFFFF;
+	fontSize: 60;
+	textAlign: center;
+	verticalAlign: middle;
+	fontFamily: myFont;
+
+}
+s|Label.PostTime
+{
+	color: #000000;
+	fontSize: 28;
+	textAlign: left;
+	fontFamily: myFont;
+
+}
+s|Label.PostCategory
+{
+	color: #000000;
+	fontFamily: myFont;
+	fontSize: 50;
+	textAlign: left;
+}
+s|TextInput.locationTextStyle
+{
+	color: #000000;
+	contentBackgroundColor: #a5bfbb;
+	fontSize: 36;
+	fontWeight: normal;
+	textAlign: left;
+
+}
+s|TextInput.locationTextStyle2
+{
+	color: #000000;
+	contentBackgroundColor: #EAE7DB;
+	fontSize: 36;
+	fontWeight: normal;
+	textAlign: left;
+
+}
+s|Label.PointsLabel
+{
+	fontSize: 120;
+	fontFamily: myFont;
+}
+s|Label.NameLabel
+{
+	color: #424242;
+	fontSize: 36;
+	textAlign: center;
+	fontFamily: myFont;
+
+}
+s|TextInput.CurrentLocation
+{
+	color: #000000;
+	fontSize: 36;
+	textAlign: left;
+	fontFamily: myFont;
+	contentBackgroundColor: #EAE7DB;
+}
+s|Label.PostFeed
+{
+	color: #000000;
+	fontSize: 30;
+	paddingBottom: 4;
+	paddingTop: 4;
+	textAlign: center;
+	verticalAlign: middle;
+	fontFamily: myFont;
+
+}
+	

@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		actionBarVisible="false" backgroundColor="#eee8cc" currentState="asked"
+		destructionPolicy="never" gestureSwipe="handleSwipe(event)" title="Asked"
+		viewActivate="view1_viewActivateHandler(event)">
+	<s:states>
+		<s:State name="asked"/>
+		<s:State name="confirm"/>
+	</s:states>
+	
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="radiogroup1"/>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
+		
+		
+		
+		
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import flash.net.dns.AAAARecord;
+			
+			import mx.collections.ArrayList;
+			
+			import spark.components.CalloutButton;
+			import spark.components.ContentBackgroundAppearance;
+			import spark.events.ViewNavigatorEvent;
+			import spark.skins.mobile.CalloutSkin;
+			import spark.transitions.SlideViewTransition;
+			import spark.transitions.SlideViewTransitionMode;
+			import spark.transitions.ViewTransitionDirection;
+			
+			[Bindable]
+			private var myAC:ArrayList;
+			
+			import views.Answer;
+			import views.Ask;
+			import views.Login;
+			
+			public var facebookID:String;
+			public var category:String;
+			public var currentDateTime:Date = new Date();
+			import spark.events.IndexChangeEvent;
+			
+			public var viewInfo:Object = new Object();
+			
+			
+			
+			
+			
+			public var runFunction:int = 0;
+			//the scrolling list
+			
+			//	protected function myList_changeHandler(event:IndexChangeEvent):void {
+			//		navigator.pushView(views.Answer,myList.selectedItem);
+			//	}
+			
+			
+			protected function getData(requestVars:URLVariables, method:String):void
+			{
+				var loader:URLLoader = new URLLoader();
+				var request:URLRequest = new URLRequest("http://www.memomedia.co.nz/dbMesi.php");
+				
+				request.method = method;	
+				request.data = requestVars;
+				
+				loader.load(request);
+				loader.addEventListener(Event.COMPLETE, parseSpecificPersonJSON);
+				
+				trace("Loading JSON file...");
+			}
+			
+			protected function parseSpecificPersonJSON(e:Event):void {
+				
+				
+				if(e.target.data){
+					
+					try
+					{
+						var parsedJSONData:Object = JSON.parse(e.target.data);
+					} 
+					catch(error:Error) 
+					{
+				//		rbText.text += "Could not parse JSON!\n";
+				//		rbText.text += "Recieved:" + e.target.data + "\n";
+					}
+					
+					
+					for each(var obj:Object in parsedJSONData){
+						//infoLbl.text = obj.firstName + ": " + obj.points + "\n";
+						myAC.addItem({name:(String(obj.firstName + " " + obj.lastName)),id:obj.facebookID});
+						
+					}
+					
+				//	rbText.text += "\n";
+					
+				}
+			}
+			
+			
+			
+			
+			
+			
+			
+			protected function view1_viewActivateHandler(event:ViewNavigatorEvent):void
+			{
+				//	textBox.text = "this is working bro";
+				addEventListener(TransformGestureEvent.GESTURE_SWIPE, handleSwipe);
+				timeLbl.text = GlobalData.instance.postTime;
+				categoryLbl.text = GlobalData.instance.postCategory;
+				locationText.text = GlobalData.instance.postLocation;
+				locationText.prompt = GlobalData.instance.postLocation;
+				
+				if(GlobalData.instance.postPaused == 0)
+				{
+					resume.visible = false;
+					postpone.visible = true;
+				}
+				else
+				{
+					resume.visible = true;
+					postpone.visible = false;
+				}
+				
+				myAC = new ArrayList([
+					//	{name:"Alan Moon",id:42}
+				]);
+				
+				var requestVars:URLVariables = new URLVariables();
+				requestVars.action = "getAllUsers";	
+				getData(requestVars, URLRequestMethod.GET);
+				
+				
+				
+				
+			}
+			
+			
+			private function initView():void{
+				addEventListener(TransformGestureEvent.GESTURE_SWIPE, handleSwipe);
+			}
+			
+			
+			private function handleSwipe(event:TransformGestureEvent):void
+			{
+				// Swipe was to the right
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				
+				
+				
+				
+				
+				
+				
+				if (event.offsetX == 1 ) {
+					
+					
+					swipeRight();
+					// swipe was to the right
+					
+					// push PreviousView without any data using default ViewTransition
+					//transition.direction = ViewTransitionDirection.RIGHT;
+					//transition.duration = 400;
+					//				navigator.pushView(Login, data, null, transition);
+					
+					//navigator.popView(transition); 
+					
+					
+					
+				}
+				else if (event.offsetX == -1) {
+					swipeLeft();
+					// push the NextView without any data
+				//	transition.direction = ViewTransitionDirection.LEFT;
+				//	transition.duration = 400;
+					//				navigator.pushView(Answer, data, null, transition);
+					
+				//	navigator.popView(transition); 
+				}
+			}
+			
+			/*
+			////radio button/////
+			protected function radiobutton1_clickHandler(event:MouseEvent):void
+			{
+			rbText.text = locationText.text + '\n' + rb1.selected + '\n'+ rb2.selected +'\n';
+			if(rb1.selected)
+			{
+			category = "Maya";
+			}
+			else if(rb2.selected)
+			{
+			category = "Photoshop";
+			}
+			
+			
+			}
+			*/
+			
+			
+			
+			
+			
+			///////
+			
+			protected function postBtn_clickHandler(event:MouseEvent):void
+			{
+				
+			//	rbText.text = "";
+				
+				var requestVars:URLVariables = new URLVariables();
+				requestVars.action = "postRequest";
+				requestVars.facebookID = data.id;
+				requestVars.category = category;
+				requestVars.location = locationText.text;
+				requestVars.fullName = data.first_name + " " + data.last_name;
+				
+				
+				getData(requestVars, URLRequestMethod.POST);
+				currentState="asked";
+			//	rbText.text += "Request Added!";
+				myAC = new ArrayList([
+					//	{name:"Alan Moon",id:42}
+				]); 
+				
+				requestVars = new URLVariables();
+				requestVars.action = "getAllUsers";	
+				getData(requestVars, URLRequestMethod.GET);
+				
+				//locationText.prompt = locationText.text;
+				categoryLbl.text = category;
+				timeLbl.text = currentDateTime.toString();
+				
+				
+				
+			}
+			
+			protected function updateBtn_clickHandler(event:MouseEvent):void
+			{
+				var requestVars:URLVariables = new URLVariables();
+				requestVars.action = "updateRequest";	
+				requestVars.facebookID = GlobalData.instance.facebookID;
+				requestVars.location = locationText.text;
+				
+				getData(requestVars, URLRequestMethod.POST);
+				
+				GlobalData.instance.updatePost(locationText.text);
+				swipeRight();
+			}
+			
+			protected function pauseBtn_clickHandler(event:MouseEvent):void
+			{
+				var requestVars:URLVariables = new URLVariables();
+				requestVars.action = "pauseRequest";	
+				requestVars.facebookID = data.id;
+				if(GlobalData.instance.postPaused == 1)
+				{
+					requestVars.paused = 0;
+					GlobalData.instance.pausePost(0);
+					resume.visible = false;
+					postpone.visible = true;
+					
+				}
+				else
+				{
+					requestVars.paused = 1;
+					GlobalData.instance.pausePost(1);
+					resume.visible = true;
+					postpone.visible = false;
+				}
+				
+				getData(requestVars, URLRequestMethod.POST);
+				
+			}
+			
+			protected function cancelBtn_clickHandler(event:MouseEvent):void
+			{
+				var requestVars:URLVariables = new URLVariables();
+				requestVars.action = "cancelRequest";	
+				requestVars.facebookID = data.id;
+				requestVars.canceled = 1;
+				getData(requestVars, URLRequestMethod.POST);
+				
+				GlobalData.instance.cancelPost();
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.RIGHT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+				navigator.popToFirstView(transition);
+
+			}
+			
+			
+			protected function swipeLeft():void{
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.LEFT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+				//			navigator.pushView(Answer, data, null, transition);
+				
+				
+				navigator.popToFirstView(transition);			}
+			
+			
+			
+			protected function swipeRight():void{
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.RIGHT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+				//			navigator.pushView(Login, data, null, transition);
+				
+				navigator.popToFirstView(transition);				
+			}
+			
+				
+				
+				
+			
+
+			
+			
+			protected function Confirm_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+				
+				var requestVars:URLVariables = new URLVariables();
+				requestVars.action = "addPoint";
+				requestVars.facebookID = peopleList.selectedItem.id;
+				getData(requestVars, URLRequestMethod.POST);
+				
+				requestVars = new URLVariables();
+				requestVars.action = "finishRequest";	
+				requestVars.facebookID = GlobalData.instance.facebookID;
+				requestVars.finished = 1;
+				getData(requestVars, URLRequestMethod.POST);
+				
+				GlobalData.instance.cancelPost();
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.RIGHT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+				navigator.popToFirstView(transition);
+			}
+			
+			protected function completedBtn_clickHandler(event:MouseEvent):void
+			{
+				currentState = "confirm";
+			}
+			
+			protected function backBtn_clickHandler(event:MouseEvent):void
+			{
+				{currentState = "asked";}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	
+	
+	<s:Image x="0" y="0" source="assets/Background.png"
+			 smooth.asked="true" smoothingQuality.asked="high"
+			 source.asked="@Embed('assets/Background.png')"
+			 smooth.confirm="true" smoothingQuality.confirm="high"
+			 source.confirm="@Embed('assets/Background.png')"/>
+	<s:Image includeIn="asked" x="0" y="0" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/EditPost_Header.png')"/>
+	<s:Image includeIn="asked" x="10" y="164" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/EditPost_CurrentPost.png')"/>
+	<s:Image includeIn="asked" y="430" right="0" click="cancelBtn_clickHandler(event)" smooth="true"
+			 smoothingQuality="high" source="@Embed('assets/EditPost_DeleteButton.png')"/>
+	<s:Image id="postpone" includeIn="asked" y="430" right="220" click="pauseBtn_clickHandler(event)"
+			 smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/EditPost_PostponeButton.png')"/>
+	<s:Image id="resume" includeIn="asked" visible="false" y="430" right="220"
+			 click="pauseBtn_clickHandler(event)" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/EditPost_ResumeButton.png')"/>
+	<s:Image includeIn="asked" y="727" right="0" click="updateBtn_clickHandler(event)" smooth="true"
+			 smoothingQuality="high" source="@Embed('assets/EditPost_UpdateButton.png')"
+			 y.asked="727"/>
+	<s:Image includeIn="asked" right="31" bottom="30" click="completedBtn_clickHandler(event)"
+			 smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/EditPost_CompletedButton.png')"/>
+	
+	<s:TextInput id="locationText" includeIn="asked" y="620" width="520" height="80" color="#000000"
+				 depth="12" horizontalCenter="0" styleName="locationTextStyle"/>
+
+	
+	<s:Label id="categoryLbl" includeIn="asked" x="220" y="215" width="370" height="170"
+			 styleName="PostCategory" textAlign="center"/>
+	<s:Label id="timeLbl" includeIn="asked" x="69" y="270" width="130" height="80"
+			 styleName="PostTime" textAlign="center" verticalAlign="justify"/>
+
+	<s:SpinnerListContainer id="spinCont" includeIn="confirm" y="400" horizontalCenter="0">
+		<s:SpinnerList id="peopleList" width="400" height="150" dataProvider="{myAC}"
+					   labelField="name"/>
+	</s:SpinnerListContainer> 
+
+	<s:Image includeIn="confirm" y="572" click="Confirm_clickHandler(event)" horizontalCenter="0"
+			 smooth="true" smoothingQuality="high" source="@Embed('assets/Confirm_Confirm.png')"/>
+	<s:Image includeIn="confirm" x="0" y="0" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/Confirm_Header.png')"/>
+	
+	<s:Image includeIn="asked" y="528" horizontalCenter="0" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/EditPost_ChangeLocation.png')"/>
+	
+	<s:Image includeIn="confirm, asked" left="0" bottom="30" click="swipeRight()"
+			 source="assets/Ask_Location_Back.png"
+			 smooth.asked="true" smoothingQuality.asked="high"
+			 source.asked="@Embed('assets/Ask_Location_Back.png')"
+			 smooth.confirm="true" smoothingQuality.confirm="high"
+			 source.confirm="@Embed('assets/Ask_Location_Back.png')"/>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</s:View>

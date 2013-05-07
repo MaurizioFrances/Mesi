@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 		
+	xmlns:s="library://ns.adobe.com/flex/spark"  
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	width="300" height="100%" textAlign="left" fontSize="30" autoDrawBackground="false" >
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="selected" />
+	</s:states>
+	
+	<!--
+	<s:Label text="{data.msg}"
+			 x.normal="41" y.normal="88" width.normal="200" height.normal="77"/>
+	-->
+	
+	<s:Image includeIn="normal" x="0" y="0" width="219" height="100" depth="10" smooth="true"
+			 smoothingQuality="high" source="{data.image}"/>
+	
+	<s:Image includeIn="selected" x="0" y="0" width="219" height="100" depth="10" smooth="true"
+			 smoothingQuality="high" source="{data.imageClicked}"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.states.SetStyle;
+			private function init():void
+			{
+				setStyle("rollOverColor", 0x6f534b);
+				setStyle("selectionColor", 0xd0998a);
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	
+	
+</s:ItemRenderer>
+
+

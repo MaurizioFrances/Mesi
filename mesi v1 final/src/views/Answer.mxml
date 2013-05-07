@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		actionBarVisible="false" backgroundColor="#eee8cc" gestureSwipe="handleSwipe(event)"
+		viewActivate="view1_viewActivateHandler(event)"
+		title="Answer"
+		destructionPolicy="never">
+	
+
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.ViewNavigatorEvent;
+			import spark.transitions.SlideViewTransition;
+			import spark.transitions.SlideViewTransitionMode;
+			import spark.transitions.ViewTransitionDirection;
+			
+			import views.Answer;
+			import views.Ask;
+			import views.Login;
+			
+			
+			public var facebookID:String;
+			public var category:String;
+			public var currentDateTime:Date = new Date();
+			public var viewInfo:Object = new Object();
+			public var index:int = 0;
+			
+			
+			
+			
+			
+			protected function getData(requestVars:URLVariables, method:String):void
+			{
+				var loader:URLLoader = new URLLoader();
+				var request:URLRequest = new URLRequest("http://www.memomedia.co.nz/dbMesi.php");
+				
+				request.method = method;	
+				request.data = requestVars;
+				
+				loader.load(request);
+				loader.addEventListener(Event.COMPLETE, parseSpecificPersonJSON);
+				
+				trace("Loading JSON file...");
+			}
+			
+			protected function parseSpecificPersonJSON(e:Event):void {
+				
+				
+				if(e.target.data){
+					
+					try
+					{
+						var parsedJSONData:Object = JSON.parse(e.target.data);
+					} 
+					catch(error:Error) 
+					{
+						outputMsg.text += "Could not parse JSON!\n";
+						outputMsg.text += "Recieved:" + e.target.data + "\n";
+					}
+					
+					
+					for each(var obj:Object in parsedJSONData){
+						if(obj.id)
+							//outputMsg.text += "ID: " + obj.id + "\n";
+						if(obj.fromName)
+							outputMsg.text += "From: " + obj.fromName + "\n";
+						if(obj.location)
+							outputMsg.text += "Location: " + obj.location + "\n";
+						if(obj.category)
+							outputMsg.text += "Category: " + obj.category + "\n";
+							GlobalData.instance.addUserCategory(obj.category);
+						if(obj.time)
+							addList(obj.fromName, obj.location, obj.category, obj.time);
+						outputMsg.text += "---------------\n";
+					}
+					GlobalData.instance.gotAllCategories();
+					outputMsg.text += "\n";
+					
+				}
+			}
+			
+			
+			
+			
+			
+			protected function view1_viewActivateHandler(event:ViewNavigatorEvent):void
+			{
+				//	textBox.text = "this is working bro";
+				addEventListener(TransformGestureEvent.GESTURE_SWIPE, handleSwipe);
+				
+				getAllCateogries();
+				GlobalData.instance.addEventListener("gotAllCategories", getFilteredRequests);
+				outputMsg.text += GlobalData.instance.userCategoriesArray.toString();
+			}
+			
+			
+			
+			
+			private function initView():void{
+				addEventListener(TransformGestureEvent.GESTURE_SWIPE, handleSwipe);
+			}
+			
+			
+			private function handleSwipe(event:TransformGestureEvent):void
+			{
+				// Swipe was to the right
+				
+				
+				
+				
+				
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				if (event.offsetX == 1 && event.stageX<100) {
+					// swipe was to the right
+					
+					// push PreviousView without any data using default ViewTransition
+			//		transition.direction = ViewTransitionDirection.RIGHT;
+			//		transition.mode = SlideViewTransitionMode.UNCOVER;
+			//		transition.duration = 400;
+				//	navigator.pushView(Ask, data, null, transition);
+			//		navigator.popView(transition); 
+					swipeRight();
+
+					
+					
+					
+				}
+				else if (event.offsetX == -1 && event.stageX>220 ) {
+					// push the NextView without any data
+					//transition.direction = ViewTransitionDirection.LEFT;
+					//transition.mode = SlideViewTransitionMode.UNCOVER;
+					//transition.duration = 400;
+			//		navigator.pushView(Login, data, null, transition);
+				//	navigator.popView(transition); 
+					swipeLeft();
+				}
+			}
+			
+			protected function getAll_clickHandler(event:MouseEvent):void
+			{
+				
+				//location
+				//person that sent help full name
+				//category from question
+				
+				GlobalData.instance.clearUserCategories();
+				
+				outputMsg.text = "";
+				
+				var requestVars:URLVariables = new URLVariables();
+				//requestVars.action = "getAllRequests";
+				requestVars.action = "getAllUserCategories";
+				requestVars.facebookID = GlobalData.instance.facebookID;
+
+
+				getData(requestVars, URLRequestMethod.GET);
+				
+				
+			}
+			
+			protected function getAllCateogries():void
+			{
+				
+				//location
+				//person that sent help full name
+				//category from question
+				
+				GlobalData.instance.clearUserCategories();
+				
+				outputMsg.text = "";
+				
+				var requestVars:URLVariables = new URLVariables();
+				//requestVars.action = "getAllRequests";
+				requestVars.action = "getAllUserCategories";
+				requestVars.facebookID = GlobalData.instance.facebookID;
+				
+				
+				getData(requestVars, URLRequestMethod.GET);
+			}
+			
+			
+			protected function getFilteredRequests(e:Event = null):void
+			{
+				GlobalData.instance.removeEventListener("gotAllCategories", getFilteredRequests);
+
+				outputMsg.text += GlobalData.instance.userCategoriesArray.toString();
+				
+				for each(var i:* in GlobalData.instance.userCategoriesArray)
+				{
+					var requestVars:URLVariables = new URLVariables();
+					requestVars.action = "getFilteredRequests";
+					requestVars.category = i;
+					
+					getData(requestVars, URLRequestMethod.GET);
+				}
+				
+			}
+			
+			
+			protected function swipeLeft():void{
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.LEFT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+		//		navigator.pushView(Login, data, null, transition);
+				
+				navigator.popToFirstView(transition);
+			}
+			
+			
+			
+			protected function swipeRight():void{
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.RIGHT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+		//		navigator.pushView(Ask, data, null, transition);
+				
+				navigator.popToFirstView(transition);
+				
+			}
+			
+			protected function addList(fromName:String, location:String, category:String, time:String):void{
+
+				if(time!=null){
+					mainArray.addItem({label: fromName   + "        " + location + "\n" + category + "        " + time, data: index});
+					
+
+					index++;
+					
+					
+					
+				}
+			}
+			
+
+			
+			protected function image1_clickHandler(event:MouseEvent):void
+			{
+			swipeLeft();				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:List id="showCategories" width="565" height="717"
+			change="null;" depth="20" labelField="label"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x="39" y="177" fontSize="16"
+			textAlign="center" visible="true" borderVisible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off"
+			allowMultipleSelection="true" itemRenderer="views.mainRenderer2" mouseEnabled="false" >
+		
+		<s:dataProvider> 
+			<s:ArrayCollection id="mainArray"> 
+				
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+		<!--  		<s:itemRenderer>
+		<fx:Component>
+		<s:IconItemRenderer labelField="label" iconField="icon" messageField="msg" messageStyleName = "fontSize"/>
+		</fx:Component>
+		</s:itemRenderer>-->
+	</s:List>
+	
+	
+	<s:Image x="0" y="-5" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/Background.png')"/>
+	
+	<s:TextArea id="outputMsg" x="41" y="565" width="573" height="153" visible="false" editable="false"/>
+
+	<s:Image x="0" y="0" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/Question_Header.png')"/>
+	<s:Image right="0" bottom="30" width="250" click="image1_clickHandler(event)" depth="40"
+			 smooth="true" smoothingQuality="high" source="@Embed('assets/Question_Back.png')"/>
+	
+	
+	
+</s:View>
+

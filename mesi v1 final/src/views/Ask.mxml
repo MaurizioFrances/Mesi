@@ -1,0 +1,881 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		actionBarVisible="false" backgroundColor="#eee8cc" currentState="location"
+		destructionPolicy="never" gestureSwipe="handleSwipe(event)" tabBarVisible="true" title="Ask">
+	<s:states>
+		<s:State name="location"/>
+		<s:State name="category"/>
+	</s:states>
+	
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="radiogroup1"/>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
+		
+		
+		
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			import mx.core.BitmapAsset;
+			import mx.events.FlexEvent;
+			[Embed(source="assets/FB.png")] 
+			private static const FB_CLASS:Class;
+			
+			private static const FB_ICON:BitmapAsset = new FB_CLASS() as BitmapAsset;
+			
+			[Embed(source="assets/photoshop.png")] 
+			private static const PS_CLASS:Class;
+			
+			private static const PS_ICON:BitmapAsset = new FB_CLASS() as BitmapAsset;
+			
+			import flash.net.dns.AAAARecord;
+			
+			import mx.collections.ArrayList;
+			
+			import spark.components.CalloutButton;
+			import spark.components.ContentBackgroundAppearance;
+			import spark.events.ViewNavigatorEvent;
+			import spark.skins.mobile.CalloutSkin;
+			import spark.transitions.SlideViewTransition;
+			import spark.transitions.SlideViewTransitionMode;
+			import spark.transitions.ViewTransitionDirection;
+			
+			[Bindable]
+			private var myAC:ArrayList;
+			
+			import views.Answer;
+			import views.Ask;
+			import views.Login;
+			
+			public var facebookID:String;
+			public var category:String;
+			public var currentDateTime:Date = new Date();
+			public var formattedDate:String;
+			import spark.events.IndexChangeEvent;
+			
+			public var viewInfo:Object = new Object();
+			
+			public var physicalCounter:int = 0;
+			public var digitalCounter:int = 0;
+			public var conceptualCounter:int = 0;
+			
+			
+			
+			public var runFunction:int = 0;
+			//the scrolling list
+			
+		//	protected function myList_changeHandler(event:IndexChangeEvent):void {
+		//		navigator.pushView(views.Answer,myList.selectedItem);
+		//	}
+			
+			
+			protected function getData(requestVars:URLVariables, method:String):void
+			{
+				var loader:URLLoader = new URLLoader();
+				var request:URLRequest = new URLRequest("http://www.memomedia.co.nz/dbMesi.php");
+				
+				request.method = method;	
+				request.data = requestVars;
+				
+				loader.load(request);
+				loader.addEventListener(Event.COMPLETE, parseSpecificPersonJSON);
+				
+				trace("Loading JSON file...");
+			}
+			
+			protected function parseSpecificPersonJSON(e:Event):void {
+				
+				
+				if(e.target.data){
+					
+					try
+					{
+						var parsedJSONData:Object = JSON.parse(e.target.data);
+					} 
+					catch(error:Error) 
+					{
+						rbText.text += "Could not parse JSON!\n";
+						rbText.text += "Recieved:" + e.target.data + "\n";
+					}
+					
+					
+					for each(var obj:Object in parsedJSONData){
+				//		infoLbl.text = obj.firstName + ": " + obj.points + "\n";
+						myAC.addItem({name:(String(obj.firstName + " " + obj.lastName)),id:obj.facebookID});
+						
+					}
+					
+					rbText.text += "\n";
+					
+				}
+			}
+			
+			
+			
+			
+			
+			
+			
+			protected function view1_viewActivateHandler(event:ViewNavigatorEvent):void
+			{
+				//	textBox.text = "this is working bro";
+				addEventListener(TransformGestureEvent.GESTURE_SWIPE, handleSwipe);
+				
+				
+
+
+			}
+			
+			
+			private function initView():void{
+				addEventListener(TransformGestureEvent.GESTURE_SWIPE, handleSwipe);
+
+			}
+			
+			
+			private function handleSwipe(event:TransformGestureEvent):void
+			{
+				// Swipe was to the right
+			//	var transition:SlideViewTransition = new SlideViewTransition();
+				
+				
+				
+				
+				
+				
+				
+				
+				if (event.offsetX == 1 ) {
+					
+					
+					
+					// swipe was to the right
+					
+					// push PreviousView without any data using default ViewTransition
+			//		transition.direction = ViewTransitionDirection.RIGHT;
+			//		transition.duration = 400;
+	//				navigator.pushView(Login, data, null, transition);
+					
+			//		navigator.popView(transition); 
+					swipeRight();
+					
+					
+					
+				}
+				else if (event.offsetX == -1) {
+					// push the NextView without any data
+			//		transition.direction = ViewTransitionDirection.LEFT;
+			//		transition.duration = 400;
+	//				navigator.pushView(Answer, data, null, transition);
+					
+			//		navigator.popView(transition); 
+					swipeLeft();
+				}
+			}
+			
+			/*
+			////radio button/////
+			protected function radiobutton1_clickHandler(event:MouseEvent):void
+			{
+				rbText.text = locationText.text + '\n' + rb1.selected + '\n'+ rb2.selected +'\n';
+				if(rb1.selected)
+				{
+					category = "Maya";
+				}
+				else if(rb2.selected)
+				{
+					category = "Photoshop";
+				}
+				
+				
+			}
+			*/
+			
+			
+			
+
+			
+			///////
+			
+			protected function postBtn_clickHandler(event:MouseEvent):void
+			{
+				
+				rbText.text = "";
+				
+				var requestVars:URLVariables = new URLVariables();
+				requestVars.action = "postRequest";
+				requestVars.facebookID = data.id;
+				requestVars.category = category;
+				requestVars.location = locationText.text;
+				requestVars.fullName = data.first_name + " " + data.last_name;
+				if(currentDateTime.day == 0)
+				{formattedDate ="Sunday   " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();}
+				if(currentDateTime.day == 1)
+				{formattedDate ="Monday   " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();}
+				if(currentDateTime.day == 2)
+				{formattedDate ="Tuesday    " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();}
+				if(currentDateTime.day == 3)
+				{formattedDate ="Wednesday   " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();}
+				if(currentDateTime.day == 4)
+				{formattedDate ="Thursday   " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();}
+				if(currentDateTime.day == 5)
+				{formattedDate ="Friday   " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();}
+				if(currentDateTime.day == 6)
+				{formattedDate ="Saturday   " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();}
+				//requestVars.time = currentDateTime.day.toString() + " " + currentDateTime.hours.toString() + ":" + currentDateTime.minutes.toString();
+				requestVars.time = formattedDate;
+				
+				
+				getData(requestVars, URLRequestMethod.POST);
+				rbText.text += "Request Added!";
+				myAC = new ArrayList([
+				//	{name:"Alan Moon",id:42}
+				]); 
+				
+				requestVars = new URLVariables();
+				requestVars.action = "getAllUsers";	
+				getData(requestVars, URLRequestMethod.GET);
+				
+				//locationText.prompt = locationText.text;
+				GlobalData.instance.setPost(locationText.text,category,formattedDate,"0");
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.LEFT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+				navigator.pushView(Asked, data, null, transition);
+				
+				
+				
+			}
+						
+			protected function swipeLeft():void{
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.LEFT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+	//			navigator.pushView(Answer, data, null, transition);
+				
+				
+				navigator.popView(transition); 
+			}
+			
+			
+			
+			protected function swipeRight():void{
+				
+				var transition:SlideViewTransition = new SlideViewTransition();
+				
+				transition.direction = ViewTransitionDirection.RIGHT;
+				transition.mode = SlideViewTransitionMode.UNCOVER;
+				transition.duration = 400;
+	//			navigator.pushView(Login, data, null, transition);
+				
+				navigator.popView(transition); 
+				
+			}
+
+			
+			
+
+			
+			protected function nextBtn_clickHandler(event:MouseEvent):void
+			{
+				if(currentState == "location")
+				{currentState = "category";}
+				else
+				{currentState = "location";}
+			}
+			
+			protected function backBtn_clickHandler(event:MouseEvent):void
+			{
+				if(currentState == "category")
+				{currentState = "location";}
+				else
+				{swipeRight();}
+			}
+			
+			//////////////////////////////////////////////////////////////////////////
+			/////////////////////    CATEGORIES PAGE    /////////////////////////////
+			/////////////////////////////////////////////////////////////////////////
+			
+
+			
+			protected function physicaltier2(event:IndexChangeEvent):void
+			{
+				if(physical_t2.selectedItem.msg == "woodwork"){
+					hideAllt3();	
+					woodwork_t3.visible = true;
+				}
+				else if (physical_t2.selectedItem.msg == "metalwork"){
+					hideAllt3();	
+					metalwork_t3.visible = true;
+				} 
+				else if (physical_t2.selectedItem.msg == "fabrication"){
+					hideAllt3();
+					fabrication_t3.visible = true;
+				} 
+				else if (physical_t2.selectedItem.msg == "electronics"){
+					hideAllt3();	
+					electronics_t3.visible = true;
+				}
+			}
+			
+			protected function digitaltier2(event:IndexChangeEvent):void
+			{
+				if(digital_t2.selectedItem.msg == "coding"){
+					hideAllt3();
+					coding_t3.visible = true;
+				}	
+				else if (digital_t2.selectedItem.msg == "image editing"){
+					hideAllt3();
+					imageEditing_t3.visible = true;
+				}	
+				else if (digital_t2.selectedItem.msg == "audio editing"){
+					hideAllt3();
+					audioEditing_t3.visible = true;
+				}	
+				else if (digital_t2.selectedItem.msg == "video editing"){
+					hideAllt3();
+					videoEditing_t3.visible = true;
+				}	
+				else if (digital_t2.selectedItem.msg == "3d modelling and animation"){
+					hideAllt3();
+					modelling_t3.visible = true;
+				}
+			}
+			
+			protected function hideAllt3():void
+			{
+				woodwork_t3.visible = false;
+				electronics_t3.visible = false;
+				metalwork_t3.visible = false;
+				fabrication_t3.visible = false;
+				coding_t3.visible = false;
+				imageEditing_t3.visible = false;
+				videoEditing_t3.visible = false;
+				modelling_t3.visible = false;
+				audioEditing_t3.visible = false;
+			}
+			
+			protected function deselectAll():void
+			{
+				woodwork_t3.selectedIndex = -1;
+				metalwork_t3.selectedIndex = -1;
+				electronics_t3.selectedIndex = -1;
+				fabrication_t3.selectedIndex = -1;
+				coding_t3.selectedIndex = -1;
+				imageEditing_t3.selectedIndex = -1;
+				audioEditing_t3.selectedIndex = -1;
+				modelling_t3.selectedIndex = -1;
+				videoEditing_t3.selectedIndex = -1;
+				conceptual_t2.selectedIndex = -1;
+				physical_t2.selectedIndex = -1;
+				digital_t2.selectedIndex = -1;
+				
+				
+			}
+			
+			private function deselectTier(list:List):void
+			{
+				if(list.selectedItem)
+				{
+					category = list.selectedItem.msg;
+					rbText.text += list.selectedItem.msg + ", ";
+					//deselectAll()
+				}
+				
+			}
+			
+			
+			
+			protected function clearAll(event:IndexChangeEvent):void
+			{
+				hideT2T3();
+				
+				deselectTier(metalwork_t3);
+				deselectTier(electronics_t3	);
+				deselectTier(woodwork_t3);
+				deselectTier(fabrication_t3);
+				
+				deselectTier(coding_t3);
+				deselectTier(imageEditing_t3);
+				deselectTier(videoEditing_t3);
+				deselectTier(audioEditing_t3);
+				deselectTier(modelling_t3);
+				
+				deselectTier(conceptual_t2);		
+				
+				deselectAll();
+			}
+			
+			
+			
+			protected function hideT2T3():void{
+				woodwork_t3.visible = false;
+				electronics_t3.visible = false;
+				metalwork_t3.visible = false;
+				fabrication_t3.visible = false;
+				
+				coding_t3.visible = false;
+				imageEditing_t3.visible = false;
+				videoEditing_t3.visible = false;
+				modelling_t3.visible = false;
+				audioEditing_t3.visible = false;
+				
+				physical_t2.visible = false;
+				digital_t2.visible = false;
+				conceptual_t2.visible = false;
+				
+				
+			}
+			
+			protected function myList_changeHandler(event:IndexChangeEvent):void {
+				if(!main_t1.selectedItem.msg) return;
+				
+				//				TIER 1				//
+				if(main_t1.selectedItem.msg == "physical"){
+					hideT2T3();
+					physical_t2.visible = true;
+					main_t1.selectedIndex = -1;
+					physicalCounter += 1;
+					digitalCounter = 0;
+					conceptualCounter = 0;
+					if(physicalCounter == 2){
+						clearAll(event);
+						physicalCounter = 0;
+					}
+					
+				}
+				else if (main_t1.selectedItem.msg == "digital"){
+					hideT2T3();
+					digital_t2.visible = true;
+					main_t1.selectedIndex = -1;			
+					digitalCounter += 1;
+					physicalCounter = 0;
+					conceptualCounter = 0;
+					if(digitalCounter == 2){
+						clearAll(event);
+						digitalCounter = 0;
+					}		
+				}
+				else if (main_t1.selectedItem.msg == "conceptual"){
+					hideT2T3();
+					conceptual_t2.visible = true;
+					main_t1.selectedIndex = -1;
+					conceptualCounter += 1;
+					digitalCounter = 0;
+					physicalCounter = 0;
+					if(conceptualCounter == 2){
+						clearAll(event);
+						conceptualCounter = 0;
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<s:BusyIndicator id="bi"
+					 visible="false"
+					 symbolColor="black" 
+					 x.category="380"
+					 y.category="478"
+					 rotationInterval="30"/>
+	
+	<s:Button label="Busy" click="{bi.visible = !bi.visible}"
+			  x.category="288" y.category="478"/>
+
+		
+	<!--   TIER 1        -->
+	<!--                 -->
+	<!--                 -->
+	<!--                 -->
+	
+	
+	
+	
+	
+	<s:List id="main_t1" includeIn="category" x.category="-15" y="150" width="100%" height.category="595"
+			borderVisible="false" change="myList_changeHandler(event);" contentBackgroundAlpha="0"
+			depth="10" fontSize="10" horizontalScrollPolicy="off" itemRenderer="views.mainRenderer"
+			labelField="main_t1" pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			skinClass="views.ListSkinSample" styleName="myList" textAlign="center"
+			fontSize.category="11" textAlign.category="left" verticalScrollPolicy="off" >
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg ="physical" imageClicked="@Embed('src/assets/physicalmenubuttons.png')" image = "@Embed('src/assets/physicalmenubutton.png')"/>
+				<fx:Object msg="digital" imageClicked="@Embed('src/assets/digitalmenubuttons.png')" image = "@Embed('src/assets/digitalmenubutton.png')"/>
+				<fx:Object msg="conceptual" imageClicked="@Embed('src/assets/conceptmenubuttons.png')" image = "@Embed('src/assets/conceptmenubutton.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+		
+	</s:List>
+	
+	
+	
+	<!--   TIER 2        -->
+	<!--                 -->
+	<!--                 -->
+	<!--                 -->
+	
+	<s:List id="physical_t2" width="100%" height="200" y="150" includeIn="category"
+			change="physicaltier2(event);" depth="10" labelField="physical_t2"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x.category="195" height.category="595" fontSize.category="11" 
+			textAlign.category="left" borderVisible="false" fontSize="10" visible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList"
+			itemRenderer="views.mainRenderer" verticalScrollPolicy="off"
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="woodwork" imageClicked="@Embed('src/assets/activemenu2woodwork.png')" image = "@Embed('src/assets/nonactivemenu2woodworking.png')"/>
+				<fx:Object msg="metalwork" imageClicked="@Embed('src/assets/activemenu2metalwork.png')" image = "@Embed('src/assets/nonactivemenu2metalwork.png')"/>
+				<fx:Object msg="electronics" imageClicked="@Embed('src/assets/activemenu2electronics.png')" image = "@Embed('src/assets/nonactivemenu2electronics.png')"/>
+				<fx:Object msg="fabrication" imageClicked="@Embed('src/assets/activemenu2fabrication.png')" image = "@Embed('src/assets/nonactivemenu2fabrication.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	<s:List id="digital_t2" width="100%" height="200" y="150" includeIn="category"
+			change="digitaltier2(event);" depth="10" labelField="digital_t2"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x.category="195" height.category="595" fontSize.category="11" 
+			textAlign.category="left" borderVisible="false" fontSize="10" visible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList"
+			itemRenderer="views.mainRenderer" verticalScrollPolicy="off"
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			
+			<s:ArrayCollection> 
+				<fx:Object msg="coding" imageClicked="@Embed('src/assets/activemenu2coding.png')" image = "@Embed('src/assets/nonactivemenu2coding.png')"/>
+				<fx:Object msg="image editing" imageClicked="@Embed('src/assets/activemenu2imageediting.png')" image = "@Embed('src/assets/nonactivemenu2imageediting.png')"/>
+				<fx:Object msg="video editing" imageClicked="@Embed('src/assets/activemenu2videoediting.png')" image = "@Embed('src/assets/nonactivemenu2videoediting.png')"/>
+				<fx:Object msg="audio editing" imageClicked="@Embed('src/assets/activemenu2audioediting.png')" image = "@Embed('src/assets/nonactivemenu2audioediting.png')"/>
+				<fx:Object msg="3d modelling and animation" imageClicked="@Embed('src/assets/activemenu2danimation.png')" image = "@Embed('src/assets/nonactivemenu2danimation.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	<s:List id="conceptual_t2" width="100%" height="200" y="150" includeIn="category"
+			change="clearAll(event);" depth="10" labelField="conceptual_t2"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x.category="195" height.category="595" fontSize.category="11" verticalScrollPolicy="off" 
+			textAlign.category="left" borderVisible="false" fontSize="10" visible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" 
+			allowMultipleSelection="false" itemRenderer="views.mainRenderer" 
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				
+				<fx:Object msg="feedback" imageClicked="@Embed('src/assets/activemenu2feedback.png')" image = "@Embed('src/assets/nonactivemenu2feedback.png')"/>
+				<fx:Object msg="research" imageClicked="@Embed('src/assets/activemenu2research.png')" image = "@Embed('src/assets/nonactivemenu2research.png')"/>
+				<fx:Object msg="proof reading" imageClicked="@Embed('src/assets/activemenu2proofreading.png')" image = "@Embed('src/assets/nonactivemenu2proofreading.png')"/>
+				
+				
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	
+	<!-- TIER 3 PHYSICAL -->
+	<!--                 -->
+	<!--                 -->
+	<!--                 -->
+	
+	<s:List id="woodwork_t3" width="100%" height="200" y="150" includeIn="category"
+			change="clearAll(event);" depth="10" labelField="woodwork_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x.category="415" height.category="595" fontSize.category="11"
+			textAlign.category="left" visible="false" borderVisible="false"
+			alternatingItemColors="[#FFFFFFF, #F0F0F0]" allowMultipleSelection="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList"
+			itemRenderer="views.mainRenderer"  verticalScrollPolicy="off" 
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="lathing" imageClicked="@Embed('src/assets/activemenu3wlathing.png')" image = "@Embed('src/assets/nonactivemenu3wlathing.png')"/>
+				<fx:Object msg="cutting" imageClicked="@Embed('src/assets/activemenu3wcutting.png')" image = "@Embed('src/assets/nonactivemenu3wcutting.png')"/>
+				<fx:Object msg="gluing" imageClicked="@Embed('src/assets/activemenu3wgluing.png')" image = "@Embed('src/assets/nonactivemenu3wgluing.png')"/>
+				<fx:Object msg="sanding" imageClicked="@Embed('src/assets/activemenu3wsanding.png')" image = "@Embed('src/assets/nonactivemenu3wsanding.png')"/>
+				<fx:Object msg="drilling" imageClicked="@Embed('src/assets/activemenu3wdrilling.png')" image = "@Embed('src/assets/nonactivemenu3wdrilling.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 	
+	</s:List>
+	
+	<s:List id="metalwork_t3" width="100%" height="200" y = "150" includeIn="category"
+			change="clearAll(event);" depth="10" labelField="metalwork_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x.category="415" height.category="595" fontSize.category="16"
+			textAlign.category="left" visible="false" borderVisible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			itemRenderer="views.mainRenderer" verticalScrollPolicy="off" 
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="lathing" imageClicked="@Embed('src/assets/activemenu3mlathing.png')" image = "@Embed('src/assets/nonactivemenu3mlathing.png')"/>
+				<fx:Object msg="cutting" imageClicked="@Embed('src/assets/activemenu3mcutting.png')" image = "@Embed('src/assets/nonactivemenu3mcutting.png')"/>
+				<fx:Object msg="welding" imageClicked="@Embed('src/assets/activemenu3mwelding.png')" image = "@Embed('src/assets/nonactivemenu3mwelding.png')"/>
+				<fx:Object msg="sanding" imageClicked="@Embed('src/assets/activemenu3mbuffing.png')" image = "@Embed('src/assets/nonactivemenu3mbuffing.png')"/>
+				<fx:Object msg="drilling" imageClicked="@Embed('src/assets/activemenu3mdrilling.png')" image = "@Embed('src/assets/nonactivemenu3mdrilling.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 	
+	</s:List>
+	
+	<s:List id="fabrication_t3" width="100%" y="150" height="53"  includeIn="category"
+			change="clearAll(event);" depth="10" labelField="fabrication_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x.category="415" height.category="595" fontSize.category="16"
+			textAlign.category="left" visible="false" borderVisible="false"  contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			itemRenderer="views.mainRenderer" verticalScrollPolicy="off" 
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="laser cutting" imageClicked="@Embed('src/assets/activemenu3lasercutting.png')" image = "@Embed('src/assets/nonactivemenu3lasercutting.png')"/>
+				<fx:Object msg="3d printing" imageClicked="@Embed('src/assets/activemenu33dprint.png')" image = "@Embed('src/assets/nonactivemenu33dprint.png')"/>
+				<fx:Object msg="cnc routing" imageClicked="@Embed('src/assets/activemenu3cncr.png')" image = "@Embed('src/assets/nonactivemenu3cncr.png')"/>
+				<fx:Object msg="cnc lathing" imageClicked="@Embed('src/assets/activemenu3cncl.png')" image = "@Embed('src/assets/nonactivemenu3cncl.png')"/>
+				<fx:Object msg="plaster casting" imageClicked="@Embed('src/assets/activemenu3plastercasting.png')" image = "@Embed('src/assets/nonactivemenu3plastercasting.png')"/>
+				
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	<s:List id="electronics_t3" width="100%"  y="150" height="53"  includeIn="category"
+			change="clearAll(event);" depth="10" labelField="electronics_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			x.category="415" height.category="595" fontSize.category="16"
+			textAlign.category="left" visible="false" borderVisible="false"  contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			itemRenderer="views.mainRenderer" verticalScrollPolicy="off" 
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="circuit layout" imageClicked="@Embed('src/assets/activemenu3circuitlayout.png')" image = "@Embed('src/assets/nonactivemenu3circuitlayout.png')"/>
+				<fx:Object msg="soldering" imageClicked="@Embed('src/assets/activemenu3lasercutting.png')" image = "@Embed('src/assets/nonactivemenu3lasercutting.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	
+	
+	
+	
+	<!--   TIER 3 CODING -->
+	<!--                 -->
+	<!--                 -->
+	<!--                 -->
+	
+	<s:List id="coding_t3" width="100%"    includeIn="category"
+			change="clearAll(event);" depth="10" labelField="coding_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			fontSize.category="16" verticalScrollPolicy="on"
+			textAlign.category="left" visible="false" borderVisible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			y="150" height="53" x.category="415" height.category="595" itemRenderer="views.mainRenderer"
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="java" imageClicked="@Embed('src/assets/activemenu3java.png')" image = "@Embed('src/assets/nonactivemenu3java.png')"/>
+				<fx:Object msg="javascript" imageClicked="@Embed('src/assets/activemenu3javascript.png')" image = "@Embed('src/assets/nonactivemenu3javascript.png')"/>
+				<fx:Object msg="html" imageClicked="@Embed('src/assets/activemenu3html.png')" image = "@Embed('src/assets/nonactivemenu3html.png')"/>
+				<fx:Object msg="processing" imageClicked="@Embed('src/assets/activemenu3processing.png')" image = "@Embed('src/assets/nonactivemenu3processing.png')"/>
+				<fx:Object msg="arduino" imageClicked="@Embed('src/assets/activemenu3ardunio.png')" image = "@Embed('src/assets/nonactivemenu3ardunino.png')"/>
+				<fx:Object msg="python" imageClicked="@Embed('src/assets/activemenu3pyhton.png')" image = "@Embed('src/assets/nonactivemenu3python.png')"/>
+				<fx:Object msg="php" imageClicked="@Embed('src/assets/activemenu3\php.png')" image = "@Embed('src/assets/nonactivemenu3php.png')"/>
+				<fx:Object msg="c" imageClicked="@Embed('src/assets/activemenu3c.png')" image = "@Embed('src/assets/nonactivemenu3c.png')"/>
+				<fx:Object msg="ruby" imageClicked="@Embed('src/assets/activemenu3ruby.png')" image = "@Embed('src/assets/nonactivemenu3ruby.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	<s:List id="imageEditing_t3" width="100%" includeIn="category"
+			change="clearAll(event);" depth="10" labelField="imageEditing_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			fontSize.category="16" verticalScrollPolicy="off" 
+			textAlign.category="left" visible="false" borderVisible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			y="150" height="53" x.category="415" height.category="595" itemRenderer="views.mainRenderer"
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="photoshop" imageClicked="@Embed('src/assets/activemenu3ps.png')" image = "@Embed('src/assets/nonactivemenu3ps.png')"/>
+				<fx:Object msg="illustrator" imageClicked="@Embed('src/assets/activemenu3illustrator.png')" image = "@Embed('src/assets/nonactivemenu3illustrator.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	<s:List id="audioEditing_t3" width="100%" includeIn="category"
+			change="clearAll(event);" depth="10" labelField="audioEditing_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			fontSize.category="16" verticalScrollPolicy="off" 
+			textAlign.category="left" visible="false" borderVisible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			y="150" height="53" x.category="415" height.category="595" itemRenderer="views.mainRenderer"
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="encore" imageClicked="@Embed('src/assets/activemenu3encore.png')" image = "@Embed('src/assets/nonactivemenu3encore.png')"/>
+				<fx:Object msg="audacity" imageClicked="@Embed('src/assets/activemenu3audacity.png')" image = "@Embed('src/assets/nonactivemenu3audacity.png')"/>
+				<fx:Object msg="soundbooth" imageClicked="@Embed('src/assets/activemenu3sbooth.png')" image = "@Embed('src/assets/nonactivemenu3sbooth.png')"/>
+				<fx:Object msg="garageband" imageClicked="@Embed('src/assets/activemenu3gband.png')" image = "@Embed('src/assets/nonactivemenu3gband.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	<s:List id="videoEditing_t3" width="100%" includeIn="category"
+			change="clearAll(event);" depth="10" labelField="videoEditing_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			fontSize.category="16" verticalScrollPolicy="off" 
+			textAlign.category="left" visible="false" borderVisible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			y="150" height="53" x.category="415" height.category="595" itemRenderer="views.mainRenderer"
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="premiere" imageClicked="@Embed('src/assets/activemenu3premier.png')" image = "@Embed('src/assets/nonactivemenu3premier.png')"/>
+				<fx:Object msg="sony vegas" imageClicked="@Embed('src/assets/activemenu3sonyv.png')" image = "@Embed('src/assets/nonactivemenu3sonyv.png')"/>
+				<fx:Object msg="after effects" imageClicked="@Embed('src/assets/activemenu3ae.png')" image = "@Embed('src/assets/nonactivemenu3ae.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	
+	<s:List id="modelling_t3" width="100%" includeIn="category"
+			change="clearAll(event);" depth="10" labelField="modelling_t3"
+			pageScrollingEnabled="true" scrollSnappingMode="leadingEdge"
+			fontSize.category="16" verticalScrollPolicy="on" 
+			textAlign.category="left" visible="false" borderVisible="false" contentBackgroundAlpha="0" horizontalScrollPolicy="off" styleName="myList" allowMultipleSelection="false"
+			
+			y="150" height="53" x.category="415" height.category="595" itemRenderer="views.mainRenderer"
+			>
+		<s:layout>
+			<s:VerticalLayout gap="13">
+			</s:VerticalLayout>
+		</s:layout>
+		<s:dataProvider> 
+			<s:ArrayCollection> 
+				<fx:Object msg="maya" imageClicked="@Embed('src/assets/activemenu3maya.png')" image = "@Embed('src/assets/nonactivemenu3maya.png')"/>
+				<fx:Object msg="3ds max" imageClicked="@Embed('src/assets/activemenu33ds.png')" image = "@Embed('src/assets/nonactivemenu33dsmax.png')"/>
+				<fx:Object msg="blender" imageClicked="@Embed('src/assets/activemenu3blender.png')" image = "@Embed('src/assets/nonactivemenu3blender.png')"/>
+				<fx:Object msg="cinema 4d" imageClicked="@Embed('src/assets/activemenu3c4d.png')" image = "@Embed('src/assets/nonactivemenu3c4d.png')"/>
+				<fx:Object msg="houdini" imageClicked="@Embed('src/assets/activemenu3houdini.png')" image = "@Embed('src/assets/nonactivemenu3houdini.png')"/>
+				<fx:Object msg="nuke" imageClicked="@Embed('src/assets/activemenu3nuke.png')" image = "@Embed('src/assets/nonactivemenu3nuke.png')"/>
+			</s:ArrayCollection> 
+		</s:dataProvider> 
+	</s:List>
+	
+	
+	<!--    END          -->
+	<!--                 -->
+	<!--                 -->
+	<!--                 -->
+	
+	
+	
+	
+	
+
+	
+	
+
+
+	
+	
+	<s:TextInput id="locationText" includeIn="location" y="360" width="520" height="80" depth="12"
+				 horizontalCenter="0" styleName="locationTextStyle2"/>
+	
+	<!--	<s:TextInput id="locationText" x="37" y="29" width="565" prompt="Where are you?"
+	x.category="187" y.category="234" width.category="254"
+	x.asked="184" y.asked="260" width.asked="417"/>
+	-->
+	
+	
+	
+	
+	
+	
+
+	
+	
+
+	<s:Image x="0" y="-5" source="@Embed('assets/Background.png')"
+			 smooth.category="true" smoothingQuality.category="high"
+			 x.location="0" y.location="-5" smoothingQuality.location="high" smooth.location="true"/>
+	<s:Image includeIn="location" bottom="0" horizontalCenter="0" smooth="true"
+			 smoothingQuality="high" source="@Embed('assets/Footer.png')"/>
+	<s:Image includeIn="category" bottom="0" horizontalCenter="0" smooth="true"
+			 smoothingQuality="high" source="@Embed('assets/Footer.png')"/>
+	<s:Image includeIn="category" right="0" bottom="60" click="postBtn_clickHandler(event)"
+			 smooth="true" smoothingQuality="high" source="@Embed('assets/EditPost_PostButton.png')"/>
+	<s:Image id="backBtn" click="backBtn_clickHandler(event)" depth="40"
+			 source="@Embed('assets/Ask_Location_Back.png')"
+			 left.category="0" bottom.category="60" smooth.category="true"
+			 smoothingQuality.category="high"
+			 left.location="0" bottom.location="60" smoothingQuality.location="high"
+			 smooth.location="true"/>
+	<s:Image id="nextBtn" includeIn="location" right="0" bottom="60"
+			 click="nextBtn_clickHandler(event)" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/Ask_Location_Next.png')"/>
+	<s:Image includeIn="location" y="245" horizontalCenter="0" smooth="true" smoothingQuality="high"
+			 source="@Embed('assets/Ask_Location_Textbox.png')"/>
+	
+
+	<s:TextArea id="rbText" x="214" y="26" includeIn="category" width="406" height="141" visible="false"/>
+	<s:Image includeIn="category" top="-30" horizontalCenter="0" smooth="true"
+			 smoothingQuality="high" source="@Embed('assets/Category_Header.png')"/>
+	
+	
+	
+	
+	
+</s:View>
